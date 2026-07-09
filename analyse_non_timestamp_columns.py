@@ -1,7 +1,9 @@
 from pyspark.sql.types import TimestampType
 import pyspark.sql.functions as F
 
-spark_df = spark.table("pre_prod_10_bronze.swift.dbo_s_agents")
+
+tabble_name = "pre_prod_10_bronze.swift.dbo_s_agents"
+spark_df = spark.table(table_name)
 
 # Drop all timestamp columns
 ts_cols = [f.name for f in spark_df.schema.fields if isinstance(f.dataType, TimestampType)]
