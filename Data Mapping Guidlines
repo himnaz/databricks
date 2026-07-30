@@ -1,0 +1,74 @@
+Mapping Guidelines
+
+TDC projects primary goal is to replace the DWH with a deltalake hosted in the Databricks environment. 
+
+The complexity in the DWH is quite high and it requires a pragmatic approach when achieving the above goal. Instruction from management is that we 
+cannot replace the whole of DWH in one step and should be achieved through couple of stages.
+To implement this staged transformation development artifacts that we produce in TDC should align with this staged approach.
+
+This document provides some guidelines for developing our mapping artifacts in line with staged approach so that the business, modellors and developers can 
+comprehend mapping document.
+
+
+TDC Stage One -- Build the deltalake with both source system tables and dwh tables
+In this step we follow the following rules when mapping the required attributes.
+1) Map required attributes directly to sources tables and fields if there are no transformations and directly accessed in the reports, dashboards etc.
+2) Map required attributes directly to sources tables and fields, if the transformations from the source table to intermediary is simple and transformation can be articulated easily.
+3) Map required attributes to intermidiary tables if the transformations cannot be easily articulated. 
+
+
+TDC Stage Two -- Replace the intermediary table references from deltalake.
+In this stage, we produce the complex transformations required replace the references of the intermediary tables from deltalake.
+
+
+Definition:
+Required Attributes
+
+These are attributes that a PowerBI report, Dashboard or Machine Learning model expects to source from DWH interfacing tables. Currently these are found in the following
+DWH schemas:
+source tables (e.g.Swift,Insight)
+msit
+mstt
+bi
+mi
+
+Description\Purpose:
+Purpose of having this required attribute if it is not obviouse
+
+Intermediary tables:
+These are physical tables or views that are available in the DWH database
+
+Spreadsheet Variable:
+These are variables that the power bi reports or dashboards directly access from excel spreadsheets.
+
+Transformation:
+These are the changes done to source data when materialising them in intermidiary tables (e.g. mstt,mi, bi ) or views (e.g. msit).
+Note: any transformation that is done in the power bi reports that is irrelavant to the mapped entity it should be excluded from the mapping 
+and if the analysts is of the opinion a transformation in powerbi is worth transferring to deltalake should only do so insultation with modellors and developers.
+
+When describing the tranformations it should be written in plain english without copying and pasting code snippets. 
+If the analyst of the opinion code snippets is usefull in articulate his transformation it should by added in the "Code Snippet" column provided it 
+does not the reading of the mapping artifact dificult.
+
+Source Table:
+DWH table,view or excel sheet where the required attribute can be located.
+
+Source Field:
+Field in the where the required attribute can be sourced from source table.
+
+Direct\Derived:
+Indicator field, some transformation is required to the source field to produce the required attribute. For these fields there should always 
+be accompanied with a transformation logic.
+Some examples of these cases are as follows.
+a) Required attributes that can be derived by applying simple transformations from source tables to avoid fetching from intermediary tables.
+b) Where there is consensus a powerbi transformtion can be performed in the deltalake 
+
+Is PBI logic:
+Indicator field to denote the required attribute is derived by transformations applied in powerbi report
+
+Business Comments:
+Any Comments on the required attribute that is help full for modelling or development.
+
+Code Snippets:
+Any code that is usefull when articulating the transformation
+
