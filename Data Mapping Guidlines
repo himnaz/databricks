@@ -1,74 +1,121 @@
-Mapping Guidelines
+# Mapping Guidelines
 
-TDC projects primary goal is to replace the DWH with a deltalake hosted in the Databricks environment. 
+## Overview
 
-The complexity in the DWH is quite high and it requires a pragmatic approach when achieving the above goal. Instruction from management is that we 
-cannot replace the whole of DWH in one step and should be achieved through couple of stages.
-To implement this staged transformation development artifacts that we produce in TDC should align with this staged approach.
+The primary goal of the TDC project is to replace the existing Data Warehouse (DWH) with a Delta Lake hosted in the Databricks environment.
 
-This document provides some guidelines for developing our mapping artifacts in line with staged approach so that the business, modellors and developers can 
-comprehend mapping document.
+The existing DWH is highly complex, so achieving this objective requires a pragmatic approach. Management has instructed that the DWH cannot be replaced in a single step. Instead, the migration will be completed in multiple stages.
 
+To support this phased transformation, all development artefacts produced within TDC should align with this staged implementation approach.
 
-TDC Stage One -- Build the deltalake with both source system tables and dwh tables
-In this step we follow the following rules when mapping the required attributes.
-1) Map required attributes directly to sources tables and fields if there are no transformations and directly accessed in the reports, dashboards etc.
-2) Map required attributes directly to sources tables and fields, if the transformations from the source table to intermediary is simple and transformation can be articulated easily.
-3) Map required attributes to intermidiary tables if the transformations cannot be easily articulated. 
+This document provides guidelines for developing mapping artefacts that support the phased migration while ensuring they remain understandable to business users, data modellers, and developers.
 
+---
 
-TDC Stage Two -- Replace the intermediary table references from deltalake.
-In this stage, we produce the complex transformations required replace the references of the intermediary tables from deltalake.
+# TDC Stage One – Build the Delta Lake with Source System and DWH Tables
 
+During this stage, apply the following rules when mapping required attributes:
 
-Definition:
-Required Attributes
+1. Map required attributes directly to source system tables and fields where no transformations are required and the data is accessed directly by reports, dashboards, or machine learning models.
 
-These are attributes that a PowerBI report, Dashboard or Machine Learning model expects to source from DWH interfacing tables. Currently these are found in the following
-DWH schemas:
-source tables (e.g.Swift,Insight)
-msit
-mstt
-bi
-mi
+2. Map required attributes directly to source system tables and fields when the transformation from the source table to the intermediary table is straightforward and can be described clearly.
 
-Description\Purpose:
-Purpose of having this required attribute if it is not obviouse
+3. Map required attributes to intermediary tables when the transformation logic is too complex to be described clearly or succinctly.
 
-Intermediary tables:
-These are physical tables or views that are available in the DWH database
+---
 
-Spreadsheet Variable:
-These are variables that the power bi reports or dashboards directly access from excel spreadsheets.
+# TDC Stage Two – Replace Intermediary Table References from the Delta Lake
 
-Transformation:
-These are the changes done to source data when materialising them in intermidiary tables (e.g. mstt,mi, bi ) or views (e.g. msit).
-Note: any transformation that is done in the power bi reports that is irrelavant to the mapped entity it should be excluded from the mapping 
-and if the analysts is of the opinion a transformation in powerbi is worth transferring to deltalake should only do so insultation with modellors and developers.
+During this stage, the complex transformation logic required to eliminate dependencies on intermediary tables will be implemented within the Delta Lake.
 
-When describing the tranformations it should be written in plain english without copying and pasting code snippets. 
-If the analyst of the opinion code snippets is usefull in articulate his transformation it should by added in the "Code Snippet" column provided it 
-does not the reading of the mapping artifact dificult.
+---
 
-Source Table:
-DWH table,view or excel sheet where the required attribute can be located.
+# Definitions
 
-Source Field:
-Field in the where the required attribute can be sourced from source table.
+## Required Attributes
 
-Direct\Derived:
-Indicator field, some transformation is required to the source field to produce the required attribute. For these fields there should always 
-be accompanied with a transformation logic.
-Some examples of these cases are as follows.
-a) Required attributes that can be derived by applying simple transformations from source tables to avoid fetching from intermediary tables.
-b) Where there is consensus a powerbi transformtion can be performed in the deltalake 
+Required attributes are the data elements that Power BI reports, dashboards, or machine learning models currently source from DWH interface tables.
 
-Is PBI logic:
-Indicator field to denote the required attribute is derived by transformations applied in powerbi report
+These attributes are currently located within the following DWH schemas:
 
-Business Comments:
-Any Comments on the required attribute that is help full for modelling or development.
+* Source tables (e.g. Swift, Insight)
+* `msit`
+* `mstt`
+* `bi`
+* `mi`
 
-Code Snippets:
-Any code that is usefull when articulating the transformation
+---
 
+## Description / Purpose
+
+A description explaining the business purpose of the required attribute, particularly where its purpose is not obvious.
+
+---
+
+## Intermediary Tables
+
+Physical tables or views that exist within the DWH database.
+
+---
+
+## Spreadsheet Variables
+
+Variables that Power BI reports or dashboards access directly from Excel spreadsheets.
+
+---
+
+## Transformation
+
+Transformations describe the changes applied to source data when it is materialised into intermediary tables (for example, `mstt`, `mi`, and `bi`) or views (for example, `msit`).
+
+Any transformations performed within Power BI that are unrelated to the mapped entity should be excluded from the mapping documentation.
+
+If an analyst believes that a Power BI transformation should be migrated into the Delta Lake, this should only be done after consultation with the data modellers and developers.
+
+Transformation descriptions should be written in plain English and should not simply copy and paste SQL or code snippets.
+
+Where a code snippet helps explain the transformation, it may be included in the **Code Snippet** column, provided that it improves understanding and does not reduce the readability of the mapping artefact.
+
+---
+
+## Source Table
+
+The DWH table, view, or Excel spreadsheet where the required attribute originates.
+
+---
+
+## Source Field
+
+The field within the source table from which the required attribute is sourced.
+
+---
+
+## Direct / Derived
+
+An indicator identifying whether the required attribute is obtained directly from the source field or whether it is derived through one or more transformations.
+
+Where an attribute is marked as **Derived**, the corresponding transformation logic must always be documented.
+
+Examples include:
+
+a. Required attributes that can be derived using simple transformations from source tables, thereby avoiding dependency on intermediary tables.
+
+b. Cases where there is agreement that an existing Power BI transformation should instead be implemented within the Delta Lake.
+
+---
+
+## Is PBI Logic
+
+An indicator showing whether the required attribute is derived using transformation logic currently implemented within a Power BI report.
+
+---
+
+## Business Comments
+
+Any business-related comments or contextual information that may assist data modelling or development.
+
+---
+
+## Code Snippets
+
+Optional code examples that help explain or clarify the transformation logic where necessary.
