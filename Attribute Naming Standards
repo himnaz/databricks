@@ -11,3 +11,7 @@ Example: MyVariableName or FirstName
 Sanke Case
 Snake case is a naming style where spaces are replaced with underscores (_) and all letters are written in lowercase. 
 Key examples include first_name, total_count, and user_profile
+
+Kebab Case
+Kebab case is a naming style where spaces are replaced with dash (-) and all letters are written in lowercase. 
+Key examples include first-name, total-count, and user-profile
