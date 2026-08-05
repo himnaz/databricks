@@ -1,0 +1,13 @@
+camelCase:
+The very first letter is lowercase.
+Every next word starts with an uppercase letter.
+Example: myVariableName or firstName. 
+
+PascalCase:
+The very first letter is uppercase.
+Every next word also starts with an uppercase letter.
+Example: MyVariableName or FirstName
+
+Sanke Case
+Snake case is a naming style where spaces are replaced with underscores (_) and all letters are written in lowercase. 
+Key examples include first_name, total_count, and user_profile
