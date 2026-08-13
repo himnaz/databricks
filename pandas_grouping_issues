@@ -1,0 +1,17 @@
+print(column_df)
+
+       column_name  column_type        pk
+0       address_id       string  not null
+12  address_line_1  varchar(35)       NaN
+13  address_line_2  varchar(35)       NaN
+14  address_line_3  varchar(35)       NaN
+15  address_line_4  varchar(35)       NaN
+16  address_line_5  varchar(35)       NaN
+32         country  varchar(35)       NaN
+76        postcode  varchar(10)       NaN
+
+column_df = column_df.groupby(['column_name','column_type','pk']).size().reset_index(name = 'count')
+
+
+  column_name column_type        pk  count
+0  address_id      string  not null      1
