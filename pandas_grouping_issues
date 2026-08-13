@@ -1,3 +1,4 @@
+I have this pandas dataframe when I print it I get the following 8 rows
 print(column_df)
 
        column_name  column_type        pk
@@ -9,6 +10,8 @@ print(column_df)
 16  address_line_5  varchar(35)       NaN
 32         country  varchar(35)       NaN
 76        postcode  varchar(10)       NaN
+
+However when I do the following grouping I am only getting one row for the address_id, the other rows are missing. Can you tell me what am I doing wrong?
 
 column_df = column_df.groupby(['column_name','column_type','pk']).size().reset_index(name = 'count')
 
