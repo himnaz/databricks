@@ -64,3 +64,131 @@ def populate_pks(output_fname,df):
    with open(output_fname, 'a') as fp:
        for table_ddl in pk_list:
            fp.write("%s\n" % table_ddl)
+
+
+============================
+I have this dataframe (attribute_formatted_df = temp_df[['derived requested attribute','derived phase','source data type']].copy()) with following data set. However after filtering (attribute_formatted_df = attribute_formatted_df.loc[attribute_formatted_df['derived phase'] == 1]) I get no result, what am I doing wrong?
+
+|     | derived requested attribute       |   derived phase | source data type   |
+|----:|:----------------------------------|----------------:|:-------------------|
+|   0 | Address Line 1                    |               1 | VARCHAR(35)        |
+|   1 | Address Line 1                    |               1 | VARCHAR(7)         |
+|   2 | Address Line 1                    |               1 | VARCHAR(35)        |
+|   3 | Address Line 1                    |               1 | VARCHAR(7)         |
+|   4 | Address Line 2                    |               1 | VARCHAR(35)        |
+|   5 | Address Line 2                    |               1 | VARCHAR(7)         |
+|   6 | Address Line 2                    |               1 | VARCHAR(35)        |
+|   7 | Address Line 2                    |               1 | VARCHAR(7)         |
+|   8 | Address Line 3                    |               1 | VARCHAR(35)        |
+|   9 | Address Line 3                    |               1 | VARCHAR(7)         |
+|  10 | Address Line 3                    |               1 | VARCHAR(35)        |
+|  11 | Address Line 3                    |               1 | VARCHAR(7)         |
+|  12 | Address Line 4                    |               1 | VARCHAR(35)        |
+|  13 | Address Line 4                    |               1 | VARCHAR(7)         |
+|  14 | Address Line 4                    |               1 | VARCHAR(35)        |
+|  15 | Address Line 4                    |               1 | VARCHAR(7)         |
+|  16 | Address Line 5                    |               1 | VARCHAR(35)        |
+|  17 | Address Line 5                    |               1 | VARCHAR(7)         |
+|  18 | Address Line 5                    |               1 | VARCHAR(35)        |
+|  19 | Address Line 5                    |               1 | VARCHAR(7)         |
+|  20 | Address Type                      |               2 |                    |
+|  21 | Agent Type Code                   |               1 | tinyint            |
+|  22 | UID                               |               1 | VARCHAR(7)         |
+|  23 | Area Sales Manager (ASM) Name LV1 |               1 | VARCHAR(50)        |
+|  24 | Area Sales Manager (ASM) UID LV1  |               1 | NVARCHAR(50)       |
+|  25 | Business Development Manager      |               1 | VARCHAR(50)        |
+|  26 | Certified Role Type               |               2 |                    |
+|  27 | CF30 Status                       |               1 | VARCHAR(100)       |
+|  28 | Channel                           |               1 | VARCHAR(7)         |
+|  29 | Combined Name                     |               1 | VARCHAR(255)       |
+|  30 | Competency Achieved Date          |               1 | Datetime           |
+|  31 | Competency Status                 |               2 |                    |
+|  32 | Country                           |               1 | VARCHAR(35)        |
+|  33 | Country                           |               1 | VARCHAR(35)        |
+|  34 | Firm Legal Name                   |               1 | VARCHAR(255)       |
+|  35 | Firm Trading Name                 |               1 | VARCHAR(255)       |
+|  36 | Firm UID                          |               1 | VARCHAR(7)         |
+|  37 | Date Joined Firm                  |               1 | Datetime           |
+|  38 | Date Joined  Partnership          |               1 | Datetime           |
+|  39 | Date Left Firm                    |               1 | Datetime           |
+|  40 | Date Left Partnership             |               1 | Datetime           |
+|  41 | Date of Birth                     |               1 | Datetime           |
+|  42 | Employment Status                 |               1 | VARCHAR(50)        |
+|  43 | Employment Type                   |               1 | tinyint            |
+|  44 | Enhanced Monitoring (Yes / No)    |               2 |                    |
+|  45 | Enhanced Monitoring End Date      |               2 |                    |
+|  46 | Enhanced Monitoring Start Date    |               2 |                    |
+|  47 | Enterprise Sales Manager ID       |               1 | NVARCHAR(50)       |
+|  48 | Enterprise Sales Manager Name     |               1 | VARCHAR(50)        |
+|  49 | FCA Registration Number           |               1 | VARCHAR(50)        |
+|  50 | Firm Segment                      |               1 | VARCHAR(100)       |
+|  51 | Firm Supervisor ID                |               1 | NVARCHAR(50)       |
+|  52 | Firm Supervisor Name              |               1 | VARCHAR(50)        |
+|  53 | First Name                        |               1 | VARCHAR(60)        |
+|  54 | Gender                            |               1 | VARCHAR(1)         |
+|  55 | Gives Advice  (Yes/No)            |               1 | VARCHAR(1)         |
+|  56 | Insight Contract Status           |               1 | VARCHAR(50)        |
+|  57 | Introducer                        |               1 | VARCHAR(255)       |
+|  58 | Introducer UID                    |               1 | VARCHAR(10)        |
+|  59 | Is ASM (Yes/No)                   |               1 | NVARCHAR(50)       |
+|  60 | Is ASM (Yes/No)                   |               1 | NVARCHAR(50)       |
+|  61 | Is ESM (Yes/No)                   |               1 | NVARCHAR(50)       |
+|  62 | Is ESM (Yes/No)                   |               1 | NVARCHAR(50)       |
+|  63 | Is Principle (of Firm)            |               1 | VARCHAR(50)        |
+|  64 | Is Supervisor (Yes / No)          |               1 | VARCHAR(50)        |
+|  65 | Job Title                         |               1 | VARCHAR(255)       |
+|  66 | Job Title                         |               1 | VARCHAR(50)        |
+|  67 | Job Title Date From               |               2 |                    |
+|  68 | Job Title Date To                 |               2 |                    |
+|  69 | Last Name                         |               1 | VARCHAR(60)        |
+|  70 | Business Area                     |               1 | VARCHAR(12)        |
+|  71 | Licences held (many to one)       |               2 |                    |
+|  72 | Licences Status (many to one)     |               2 |                    |
+|  73 | List of Competencies              |               2 |                    |
+|  74 | Mobile Telephone Number           |               1 | VARCHAR(20)        |
+|  75 | Nationality                       |               1 | VARCHAR(50)        |
+|  76 | NINO                              |               1 | VARCHAR(15)        |
+|  77 | Other SPS details??               |               2 |                    |
+|  78 | Panel                             |               1 | VARCHAR(100)       |
+|  79 | Panel Banding                     |               2 |                    |
+|  80 | PDM                               |               1 | VARCHAR(100)       |
+|  81 | PDM Area                          |               1 | VARCHAR(100)       |
+|  82 | Postcode                          |               1 | VARCHAR(10)        |
+|  83 | Postcode                          |               1 | VARCHAR(10)        |
+|  84 | Primary Email Address             |               1 | VARCHAR(50)        |
+|  85 | Principal Role Start Date         |               1 | Datetime           |
+|  86 | Principal Role Start Date         |               1 | INT                |
+|  87 | Principal Role Start Date         |               1 | VARCHAR(50)        |
+|  88 | Portal Code                       |               1 | VARCHAR(20)        |
+|  89 | Reason for Leaving                |               1 | VARCHAR(100)       |
+|  90 | Recruitment Source                |               1 | VARCHAR(14)        |
+|  91 | Region                            |               1 | VARCHAR(100)       |
+|  92 | Seller Role (Yes / No)            |               1 | VARCHAR(7)         |
+|  93 | Seller Role (Yes / No)            |               1 | VARCHAR(1)         |
+|  94 | Seller Role (Yes / No)            |               1 | VARCHAR(7)         |
+|  95 | Seller Type                       |               1 | INT                |
+|  96 | Specialist Licences Held (Yes/No) |               2 |                    |
+|  97 | SPS Certification (Wealth Only)   |               2 |                    |
+|  98 | SPS Renewal Date                  |               2 |                    |
+|  99 | Swift Status                      |               1 | VARCHAR(20)        |
+| 100 | Telephone Number                  |               1 | VARCHAR(30)        |
+| 101 | Partnership T&C Manager ID        |               1 | NVARCHAR(50)       |
+| 102 | Partnership T&C Manager Name      |               1 | VARCHAR(50)        |
+| 103 | Partnership T&C Supervisor ID     |               1 | NVARCHAR(50)       |
+| 104 | Partnership T&C Supervisor Name   |               1 | VARCHAR(50)        |
+| 105 | QRM                               |                 | VARCHAR(50)        |
+| 106 | Contact Title                     |               1 | VARCHAR(35)        |
+| 107 | Contact Forename                  |               1 | VARCHAR(60)        |
+| 108 | Contact Surname                   |               1 | VARCHAR(60)        |
+| 109 | Category Code                     |               1 | VARCHAR(8)         |
+| 110 | Category Name                     |               1 | VARCHAR(50)        |
+| 111 | Notice Given                      |               1 | Datetime           |
+| 112 | Suspension                        |               1 | VARCHAR(35)        |
+| 113 | New/Experienced                   |               1 | VARCHAR(11)        |
+| 114 | OwlASMEmail                       |               1 | VARCHAR(50)        |
+| 115 | Months Active                     |               1 | INT                |
+| 116 | Date Transferred                  |               1 | Datetime           |
+| 117 | AR Agent Type                     |               1 | VARCHAR(50)        |
+
+| derived requested attribute   | derived phase   | source data type   |
+|-------------------------------|-----------------|--------------------|
