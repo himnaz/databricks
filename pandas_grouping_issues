@@ -18,3 +18,49 @@ column_df = column_df.groupby(['column_name','column_type','pk']).size().reset_i
 
   column_name column_type        pk  count
 0  address_id      string  not null      1
+
+============
+
+
+pks_df = df.groupby(['child_database_name','child_table_name','parent_database_name','parent_table_name','ref_grp'], dropna=False).size().reset_index(name = 'count')
+the above pandas dataframe has the following values
+|    | child_database_name       | child_table_name   | parent_database_name      | parent_table_name   | ref_grp   |   count |
+|---:|:--------------------------|:-------------------|:--------------------------|:--------------------|:----------|--------:|
+|  0 | pre_prod_20_silver.silver | staff_address      | pre_prod_20_silver.silver | address             | sa1       |       1 |
+
+
+The out put of print(pks_col_df) is 
+<bound method NDFrame.copy of   child_column_name parent_column_name
+0        address_id         address_id>
+
+ I am getting the following error in pks_col_df.empty
+Exception has occurred: AttributeError
+'function' object has no attribute 'empty'
+  File "C:\app\scripts\populate_schema.py", line 79, in populate_pks
+    if pks_col_df.empty:
+       ^^^^^^^^^^^^^^^^
+  File "C:\app\scripts\populate_schema.py", line 146, in <module>
+    populate_pks(silver_sql_file,silver_pk_df)
+AttributeError: 'function' object has no attribute 'empty'
+
+The full function is as follows tell me what am I doing wrong?
+
+def populate_pks(output_fname,df):
+   pk_list = []
+   pks_df = df.groupby(['child_database_name','child_table_name','parent_database_name','parent_table_name','ref_grp'], dropna=False).size().reset_index(name = 'count')
+   print(pks_df.to_markdown())
+   for index,pks in pks_df.iterrows():
+      print(pks)
+      pk_sql_str=''
+      pks_col_df = df.loc[(df['child_database_name'] == pks['child_database_name']) & (df['child_table_name'] == pks['child_table_name']) & (df['parent_table_name'] == pks['parent_table_name']) & (df['parent_database_name'] == pks['parent_database_name']) & (df['ref_grp'] == pks['ref_grp']),['child_column_name','parent_column_name']].copy
+      print(pks_col_df)
+      if pks_col_df.empty:
+         pass;
+      else:
+         pk_sql_str = pk_sql_str + ',\n'
+         pk_sql_str = pk_sql_str + 'ALTER TABLE ' + pks['child_database_name'] + '.' +  pks['child_table_name'] + ' ADD CONSTRAINT ' + pks['ref_grp'] + '_' + pks['child_table_name'] + '_' + pks['parent_table_name'] + ' FOREIGN KEY ' + '(' + get_primary_keys(pks_col_df['child_column_name'].to_list()) + ')' + ' REFERENCES ' +  pks['parent_database_name'] + '.' +  pks['perent_table_name'] + '(' + get_primary_keys(pks_col_df['parent_column_name'].to_list()) + ')'
+         pk_list.append(pk_sql_str)
+
+   with open(output_fname, 'a') as fp:
+       for table_ddl in pk_list:
+           fp.write("%s\n" % table_ddl)
