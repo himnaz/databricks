@@ -88,12 +88,22 @@ def populate_pks(output_fname,df):
            fp.write("%s\n" % table_ddl)
    #return pk_list
 
-        
+
+def populate_table_excel(merged_df,ref_file,out_file,template_file,path):
+   #merged_df has all the fields in the target_db in snake_case_substitute format
+   snake_df = pd.read_excel(ref_file, sheet_name='snake_case',header=0)
+   requested_attribute_df = pd.read_excel(out_file, sheet_name='requested attribute',header=0)
+   formatted_attribute_df = pd.read_excel(out_file, sheet_name='attributes_formated',header=0)
+   formatted_attribute_df['derived requested attribute'] = formatted_attribute_df['derived requested attribute'].str.strip().str.lower()
+   formatted_attribute_df = formatted_attribute_df.loc[formatted_attribute_df['derived phase'] == '1.0']
+
+   snake_case_substitute_df = pd.merge(requested_attribute_df,snake_df,how='left',left_on='snake_case',right_on='snake_case')
+
       
       
 
 
- 
+model_template = 'C:\\app\\modelling\\staff\\TDC_Mapping_Workbook_Template Adviser V7.xlsx'
 model_in_file = 'C:\\app\\modelling\\staff\\Adviser_model.xlsx'
 model_out_file = 'C:\\app\\modelling\\staff\\Adviser_model_out.xlsx'
 merged_out_file = 'C:\\app\\modelling\\staff\\Adviser_model_merged.xlsx'
@@ -136,7 +146,7 @@ main_mv_df['column_type'] = main_mv_df['source data type']
 silver_model_df = pd.read_excel(model_in_file, sheet_name='aux_silver',header=0)
 silver_model_df = silver_model_df[['column_name','column_type','table_name','pk']]
 silver_model_df = pd.concat([silver_model_df,main_silver_df],ignore_index=True)
-silver_model_df['database_name'] = 'pre_prod_20_silver.silver'
+silver_model_df['database_name'] = 'pre_prod_20_silver.silver' ##This has the merged df
 write_excel(merged_out_file,'silver',silver_model_df)
 
 silver_ddl = populate_ddl(silver_sql_file,silver_model_df)
@@ -148,7 +158,7 @@ populate_pks(silver_sql_file,silver_pk_df)
 gold_model_df = pd.read_excel(model_in_file, sheet_name='aux_gold',header=0)
 gold_model_df = gold_model_df[['column_name','column_type','table_name','pk']]
 gold_model_df = pd.concat([gold_model_df,main_gold_df],ignore_index=True)
-gold_model_df['database_name'] = 'pre_prod_20_gold.gold'
+gold_model_df['database_name'] = 'pre_prod_20_gold.gold' ##This has the merged df for gold join with formatted attributes
 write_excel(merged_out_file,'gold',gold_model_df)
 gold_ddl = populate_ddl(gold_sql_file,gold_model_df)
 gold_pk_df = pd.read_excel(model_out_file, sheet_name='gold_ref',header=0)
