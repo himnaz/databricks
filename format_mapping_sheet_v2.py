@@ -1,0 +1,144 @@
+import pandas as pd
+import os
+from pathlib import Path
+from re import sub
+from tabulate import tabulate
+
+def write_excel (output_fname,sheet_name,df):
+ if os.path.exists(output_fname):
+   with pd.ExcelWriter(output_fname, engine='openpyxl', mode='a',if_sheet_exists='replace') as writer:
+    df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+ else:
+   with pd.ExcelWriter(output_fname, engine='openpyxl', mode='w') as writer:
+    df.to_excel(writer, sheet_name=sheet_name, index=False)
+
+
+def snake_case(s):
+    # Replace hyphens with spaces, then apply regular expression substitutions for title case conversion
+    # and add an underscore between words, finally convert the result to lowercase
+    return '_'.join(
+        sub('([A-Z][a-z]+)', r' \1',
+        sub('([A-Z]+)', r' \1',
+        s.replace('-', ' '))).split()).lower()
+
+
+ref_fname    = 'C:\\app\\modelling\\staff\\advisor_refs.xlsx'
+in_fname     = 'C:\\app\\modelling\\staff\\Copy of TDC_Mapping_Workbook_Template Adviser V12.xlsx'
+out_fname    = 'C:\\app\\modelling\\staff\\Adviser_out.xlsx'
+
+dwh_columns_fname = 'C:\\app\\dwh_columns_formatted.xlsx'
+
+
+
+data_df = pd.read_excel(in_fname, sheet_name='Attribute Mapping',header=0)
+data_df.columns = map(str.lower, data_df.columns)
+data_df.columns = [c.replace("\n", "_") for c in data_df.columns]
+#print(data_df.columns)
+
+write_excel(out_fname,'attributes',data_df)
+
+#'pk? (y/n)','nullable? (y/n)','required attribute (business name)','description','phase (1/2)','source type','source schema.table','source field','source data type','direct or derived','transformation logic (plain english, numbered steps)','null / duplicate / unmatched-key handling','code snippet','is pbi logic? (y/n)','pii / sensitivity','business comments','status','last updated'
+new_df = data_df[['required attribute (business name)', 'source type','source schema.table','source field','source data type','direct or derived','transformation logic (plain english, numbered steps)','phase (1/2)']].copy()
+
+
+new_df['phase (1/2)'] = new_df['phase (1/2)'].astype(str)
+
+new_df.fillna('',inplace=True)
+print(new_df.columns)
+
+new_df['requested attribute'] = new_df['required attribute (business name)'] 
+new_df['source table'] = new_df['source schema.table'] 
+new_df['source column'] = new_df['source field']
+new_df['transformation logic'] = new_df['transformation logic (plain english, numbered steps)']
+
+temp_list = []
+curr_attribute_name = ''
+curr_phase = ''
+for index, row in new_df.iterrows():
+ #print(row)
+ row_attribute_name = row['requested attribute']
+ if row_attribute_name != '':
+    curr_attribute_name = row_attribute_name
+    curr_phase = row['phase (1/2)']
+    row['derived requested attribute'] = row_attribute_name
+    row['derived phase'] = row['phase (1/2)']
+ else:
+    row['derived requested attribute'] = curr_attribute_name
+    row['derived phase'] =  curr_phase
+ temp_list.append(row)
+
+#write_excel(out_fname,'attributes_formated',new_df)
+
+temp_df = pd.DataFrame(temp_list)
+
+write_excel(out_fname,'attributes_formated',pd.DataFrame(temp_list))
+
+################
+attribute_formatted_df = temp_df[['derived requested attribute','derived phase','source data type']].copy()
+print(attribute_formatted_df.to_markdown())
+attribute_formatted_df = attribute_formatted_df.loc[attribute_formatted_df['derived phase'] == '1.0']
+print()
+print(attribute_formatted_df.to_markdown())
+#write_excel(model_out_file,'phase',attribute_formatted_df)
+attribute_formatted_df = attribute_formatted_df.groupby(['derived requested attribute']).agg(min)[['derived phase', 'source data type']].reset_index()
+print(attribute_formatted_df.to_markdown())
+write_excel(out_fname,'model',attribute_formatted_df)
+
+################
+
+write_excel(out_fname,'required attributes grouped',temp_df.groupby(['derived requested attribute']).size().reset_index(name='count'))
+
+
+
+
+temp_df['source table']  = temp_df['source table'].str.strip().str.lower()
+temp_df['source column'] = temp_df['source column'].str.strip().str.lower()
+
+grouped_df = temp_df.groupby(['source table', 'source column']).size().reset_index(name='count')
+
+grouped_df['source column'] = grouped_df['source column'].str.replace('[', '',regex=False)
+grouped_df['source column'] = grouped_df['source column'].str.replace(']', '',regex=False)
+
+write_excel(out_fname,'attributes_grouped',grouped_df)
+
+meta_df = pd.read_excel(dwh_columns_fname, sheet_name='columns',header=0)
+
+meta_df = meta_df[['table_name', 'column_name', 'data_type', 'is_nullable','character_maximum_length','numeric_precision','numeric_precision_radix']].copy()
+
+
+type_df = pd.merge(grouped_df, meta_df,left_on=['source table','source column'],right_on=['table_name','column_name'], how="left")
+
+write_excel(out_fname,'attributes_type',type_df)
+
+write_excel(out_fname,'phase_1',temp_df.loc[temp_df['phase (1/2)'] == '1.0'].groupby(['requested attribute']).size().reset_index(name='count'))
+
+write_excel(out_fname,'phase_2',temp_df.loc[temp_df['phase (1/2)'] == '2.0'].groupby(['requested attribute']).size().reset_index(name='count'))
+
+write_excel(out_fname,'no phase',temp_df.loc[temp_df['phase (1/2)'] == ''].groupby(['requested attribute']).size().reset_index(name='count'))
+
+write_excel(out_fname,'duplicated sources',temp_df.loc[temp_df['phase (1/2)'] == ''].groupby(['requested attribute']).size().reset_index(name='count'))
+
+temp_df['requested attribute']  = temp_df['requested attribute'].str.strip().str.lower()
+
+
+temp_df['snake_case'] = temp_df.apply(lambda row: snake_case(row['requested attribute']), axis = 1)
+
+write_excel(out_fname,'requested attribute',temp_df.groupby(['requested attribute','snake_case']).size().reset_index(name='count'))
+
+#write_excel(out_fname,'requested attribute by phase',temp_df.groupby(['requested attribute','phase (1/2)']).size().reset_index(name='count'))
+write_excel(out_fname,'requested attribute by phase',temp_df.groupby(['requested attribute','snake_case','phase (1/2)']).size().reset_index(name='count'))
+
+#bringing in ref tabs
+
+write_excel(out_fname,'ref_silver',pd.read_excel(ref_fname, sheet_name='ref_silver',header=0))
+write_excel(out_fname,'aux_silver',pd.read_excel(ref_fname, sheet_name='aux_silver',header=0))
+
+write_excel(out_fname,'ref_gold',pd.read_excel(ref_fname, sheet_name='ref_gold',header=0))
+write_excel(out_fname,'aux_gold',pd.read_excel(ref_fname, sheet_name='aux_gold',header=0))
+
+write_excel(out_fname,'variable_type',pd.read_excel(ref_fname, sheet_name='variable_type',header=0))
+write_excel(out_fname,'silver_ref',pd.read_excel(ref_fname, sheet_name='silver_ref',header=0))
+write_excel(out_fname,'gold_ref',pd.read_excel(ref_fname, sheet_name='gold_ref',header=0))
+
+
