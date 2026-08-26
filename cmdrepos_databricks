@@ -25,3 +25,45 @@ select useruid as staff_id, BQMUID as parent_staff_id, 'bqm' as parent_staff_rol
 PIVOT (
   max(parent_staff_id)
   FOR parent_staff_role IN ('asm', 'esm', 'supervisor', 'introducer', 'aqm', 'bqm')
+
+
+
+
+select * from
+(
+SELECT *
+FROM (
+select useruid as staff_id, OwlASMUID1 as pivot_row, 'asm_id' as pivot_col  from dev_10_bronze.dwh.dbo_mi_insight_userhierarchyallusers where OwlASMUID1 is not null and LatestRowInd = '1'
+union all
+select useruid as staff_id, OwlASMName1 as pivot_row, 'asm_name' as pivot_col  from dev_10_bronze.dwh.dbo_mi_insight_userhierarchyallusers where OwlASMName1 is not null and LatestRowInd = '1'
+union all
+select useruid as staff_id, OwlASMUID2 as pivot_row, 'esm_id' as pivot_col  from dev_10_bronze.dwh.dbo_mi_insight_userhierarchyallusers where OwlASMUID2 is not null and LatestRowInd = '1'
+union all
+select useruid as staff_id, OwlASMName2 as pivot_row, 'esm_name' as pivot_col  from dev_10_bronze.dwh.dbo_mi_insight_userhierarchyallusers where OwlASMName2 is not null and LatestRowInd = '1'
+union all
+select useruid as staff_id, SupervisorUID as pivot_row, 'supervisor_id' as pivot_col  from dev_10_bronze.dwh.dbo_mi_insight_userhierarchyallusers where SupervisorUID is not null and LatestRowInd = '1'
+union all
+select useruid as staff_id, SupervisorName as pivot_row, 'supervisor_name' as pivot_col  from dev_10_bronze.dwh.dbo_mi_insight_userhierarchyallusers where SupervisorName is not null and LatestRowInd = '1'
+union all
+--select ag.code as staff_id, ag.RecruitedByCode as pivot_row, 'introducer_id' as pivot_col
+--from dev_10_bronze.dwh.dbo_mstt_agents ag join dev_10_bronze.dwh.dbo_cscv_agentshierarchy introd on ag.RecruitedByCode = --introd.AgentCode
+select ag.code as staff_id, ag.RecruitedByCode as pivot_row, 'introducer_id' as pivot_col
+from dev_10_bronze.dwh.dbo_mstt_agents ag where ag.RecruitedByCode is not null
+union all
+select ag.code as staff_id, introd.agentdesc as pivot_row, 'introducer_name' as pivot_col
+from dev_10_bronze.dwh.dbo_mstt_agents ag join dev_10_bronze.dwh.dbo_cscv_agentshierarchy introd on ag.RecruitedByCode = introd.AgentCode
+union all
+select useruid as staff_id, AQMUID as pivot_row, 'aqm_id' as pivot_col  from dev_10_bronze.dwh.dbo_mi_insight_userhierarchyallusers where AQMUID is not null and LatestRowInd = '1'
+union all
+select useruid as staff_id, AQMName as pivot_row, 'aqm_name' as pivot_col  from dev_10_bronze.dwh.dbo_mi_insight_userhierarchyallusers where AQMName is not null and LatestRowInd = '1'
+union all
+select useruid as staff_id, BQMUID as pivot_row, 'bqm_id' as pivot_col  from dev_10_bronze.dwh.dbo_mi_insight_userhierarchyallusers where BQMUID is not null and LatestRowInd = '1'
+union all
+select useruid as staff_id, BQMName as pivot_row, 'bqm_name' as pivot_col  from dev_10_bronze.dwh.dbo_mi_insight_userhierarchyallusers where BQMName is not null and LatestRowInd = '1'
+) AS source
+PIVOT (
+  max(pivot_row)
+  FOR pivot_col IN ('asm_id','asm_name', 'esm_id','esm_name', 'supervisor_id','supervisor_name', 'introducer_id', 'introducer_name', 'aqm_id','aqm_name', 'bqm_id','bqm_name')
+)
+)
+where asm_id is not null
